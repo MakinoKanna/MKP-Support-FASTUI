@@ -24,3 +24,6 @@ Thumbs.db
 
 # Test files
 TEST.HTML
+
+# Tool scripts
+convert_webp.py

@@ -313,23 +313,44 @@
      * - 更新版本列表显示状态
      */
     function init() {
-      fetch('/api/printers')
-        .then(response => response.json())
-        .then(data => {
-          brands = data.brands;
-          printersByBrand = data.printersByBrand;
-          renderBrands();
-          renderPrinters(selectedBrand);
-          renderVersions();
-          bindNavigation();
-          bindContextMenu();
-          renderWizardBrands();
-          updateVersionListForPrinter();
-          filterFaq('');
-        })
-        .catch(error => {
-          console.error('加载机型数据失败:', error);
-        });
+      // 使用 Electron IPC 通信获取打印机数据
+      if (window.electronAPI) {
+        window.electronAPI.getPrinters()
+          .then(data => {
+            brands = data.brands;
+            printersByBrand = data.printersByBrand;
+            renderBrands();
+            renderPrinters(selectedBrand);
+            renderVersions();
+            bindNavigation();
+            bindContextMenu();
+            renderWizardBrands();
+            updateVersionListForPrinter();
+            filterFaq('');
+          })
+          .catch(error => {
+            console.error('加载机型数据失败:', error);
+          });
+      } else {
+        // 后备方案：直接加载本地 JSON 文件
+        fetch('../data/printers.json')
+          .then(response => response.json())
+          .then(data => {
+            brands = data.brands;
+            printersByBrand = data.printersByBrand;
+            renderBrands();
+            renderPrinters(selectedBrand);
+            renderVersions();
+            bindNavigation();
+            bindContextMenu();
+            renderWizardBrands();
+            updateVersionListForPrinter();
+            filterFaq('');
+          })
+          .catch(error => {
+            console.error('加载机型数据失败:', error);
+          });
+      }
     }
 
     // ==================== 5. 引导页功能 ====================
@@ -932,8 +953,10 @@
           item.classList.add('active');
           
           const page = item.dataset.page;
+          document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
           document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
           document.getElementById(`page-${page}`).classList.remove('hidden');
+          document.getElementById(`page-${page}`).classList.add('active');
           
           if (page === 'download') {
             updateVersionListForPrinter();
@@ -1037,9 +1060,11 @@
       
       // 启用日期选择器
       const dateSelect = document.getElementById('dateSelect');
-      dateSelect.disabled = false;
-      dateSelect.classList.remove('text-gray-400', 'cursor-not-allowed', 'bg-gray-50');
-      dateSelect.classList.add('text-gray-900', 'bg-white', 'cursor-pointer');
+      if (dateSelect) {
+        dateSelect.disabled = false;
+        dateSelect.classList.remove('text-gray-400', 'cursor-not-allowed', 'bg-gray-50');
+        dateSelect.classList.add('text-gray-900', 'bg-white', 'cursor-pointer');
+      }
       
       // 更新步骤2徽章
       const step2Badge = document.getElementById('step2Badge');
@@ -1048,7 +1073,10 @@
         step2Badge.classList.add('text-blue-500');
       }
       
-      document.getElementById('dateSelector').style.opacity = '1';
+      const dateSelector = document.getElementById('dateSelector');
+      if (dateSelector) {
+        dateSelector.style.opacity = '1';
+      }
       updateDownloadButton();
       updateSidebarVersionBadge(type);
       updateCalibratePageScript();
@@ -1115,14 +1143,17 @@
     function updateDownloadButton() {
       const btn = document.getElementById('downloadBtn');
       const hintWrapper = document.getElementById('downloadHintWrapper');
-      const dateVal = document.getElementById('dateSelect').value;
+      const dateSelect = document.getElementById('dateSelect');
+      const dateVal = dateSelect ? dateSelect.value : '';
       
-      if (selectedVersion && dateVal) {
-        btn.disabled = false;
-        if (hintWrapper) hintWrapper.style.opacity = '0';
-      } else {
-        btn.disabled = true;
-        if (hintWrapper) hintWrapper.style.opacity = '1';
+      if (btn) {
+        if (selectedVersion && dateVal) {
+          btn.disabled = false;
+          if (hintWrapper) hintWrapper.style.opacity = '0';
+        } else {
+          btn.disabled = true;
+          if (hintWrapper) hintWrapper.style.opacity = '1';
+        }
       }
     }
 

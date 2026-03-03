@@ -1,0 +1,83 @@
+{
+  "name": "mkp_support_fastui",
+  "version": "1.0.0",
+  "description": "A modern Web UI for [MKP Support](https://github.com/YZcat2023/MKPSupport), built with FastAPI and Vanilla JS.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.mkpsupport.app",
+    "productName": "MKP Support",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "static/images/a1.ico",
+      "asar": true
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false,
+      "installerIcon": "static/images/a1.ico",
+      "uninstallerIcon": "static/images/a1.ico",
+      "installerHeaderIcon": "static/images/a1.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MKP Support",
+      "deleteAppDataOnUninstall": true
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "templates/**/*",
+      "static/**/*",
+      "data/**/*",
+      "mkp_processor/**/*",
+      "presets/**/*",
+      "external/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "data",
+        "to": "data"
+      },
+      {
+        "from": "presets",
+        "to": "presets"
+      },
+      {
+        "from": "external",
+        "to": "external"
+      }
+    ],
+    "compression": "maximum",
+    "asarUnpack": [
+      "external/**/*"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MakinoKanna/MKP-Support-FASTUI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MakinoKanna/MKP-Support-FASTUI/issues"
+  },
+  "homepage": "https://github.com/MakinoKanna/MKP-Support-FASTUI#readme",
+  "devDependencies": {
+    "electron": "^40.6.1",
+    "electron-builder": "^26.8.1"
+  }
+}
